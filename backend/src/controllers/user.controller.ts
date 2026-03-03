@@ -128,8 +128,9 @@ export const getUserStreak = async (req: Request, res: Response) => {
 
     // Check if the streak is already broken.
     // If the last workout was more than 1 day ago (i.e., not today and not yesterday), streak is 0.
-    const diffFirst =
-      (today.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24);
+    const diffFirst = Math.floor(
+      (today.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
 
     if (diffFirst > 1) {
       return res.status(200).json({ success: true, streak: 0 });
@@ -144,9 +145,10 @@ export const getUserStreak = async (req: Request, res: Response) => {
       currentDate.setHours(0, 0, 0, 0);
 
       // Calculate the difference in days between the current date in the loop and the previously checked date.
-      const diff =
+      const diff = Math.floor(
         (previousDate.getTime() - currentDate.getTime()) /
-        (1000 * 60 * 60 * 24);
+          (1000 * 60 * 60 * 24),
+      );
 
       // If the difference is exactly 1 day, it's a consecutive workout.
       if (diff === 1) {
