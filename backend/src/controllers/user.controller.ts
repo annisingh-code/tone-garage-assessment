@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { pool } from "../config/db";
+import { isValidId } from "../utils/validation"; // 🔥 Utility import kar li
 
 /**
  * Retrieves the complete workout history for a specific user.
@@ -9,6 +10,14 @@ import { pool } from "../config/db";
 export const getUserWorkoutHistory = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
+    
+    // ✅ Utility function use kar li
+    if (!isValidId(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid userId",
+      });
+    }
 
     // Fetch user's workout history ordered by the most recent completion date
     const [rows] = await pool.query(
@@ -49,6 +58,15 @@ export const getUserWorkoutHistory = async (req: Request, res: Response) => {
 export const completeWorkout = async (req: Request, res: Response) => {
   try {
     const { userId, workoutId } = req.params;
+    
+    // ✅ Yahan bhi Utility function use kar li dono IDs ke liye
+    if (!isValidId(userId) || !isValidId(workoutId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid userId or workoutId",
+      });
+    }
+    
     const { completedAt } = req.body;
 
     // Validate if the timestamp is provided in the request body
@@ -99,8 +117,15 @@ export const getUserStreak = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
+    // ✅ Yahan bhi ekdum clean utility validation
+    if (!isValidId(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid userId",
+      });
+    }
+
     // Fetch distinct workout dates ordered from newest to oldest.
-    // DISTINCT prevents multiple workouts on the same day from breaking the logic.
     const [rows]: any = await pool.query(
       `
       SELECT DISTINCT DATE(completed_at) as completed_date
@@ -113,8 +138,21 @@ export const getUserStreak = async (req: Request, res: Response) => {
 
     // If the user has no workout history, their streak is obviously 0.
     if (rows.length === 0) {
-      return res.status(200).json({ success: true, streak: 0 });
+      return res.status(200).json({
+        success: true,
+        data: {
+          streak: 0,
+          lastWorkoutDate: null,
+        },
+      });
     }
+
+    // Format the date UP to avoid frontend timezone confusion
+    const lastDate = new Date(rows[0].completed_date);
+    const year = lastDate.getFullYear();
+    const month = String(lastDate.getMonth() + 1).padStart(2, "0");
+    const day = String(lastDate.getDate()).padStart(2, "0");
+    const formattedLastDate = `${year}-${month}-${day}`;
 
     let streak = 0;
 
@@ -127,13 +165,18 @@ export const getUserStreak = async (req: Request, res: Response) => {
     previousDate.setHours(0, 0, 0, 0);
 
     // Check if the streak is already broken.
-    // If the last workout was more than 1 day ago (i.e., not today and not yesterday), streak is 0.
     const diffFirst = Math.floor(
       (today.getTime() - previousDate.getTime()) / (1000 * 60 * 60 * 24),
     );
 
     if (diffFirst > 1) {
-      return res.status(200).json({ success: true, streak: 0 });
+      return res.status(200).json({
+        success: true,
+        data: {
+          streak: 0,
+          lastWorkoutDate: formattedLastDate, 
+        },
+      });
     }
 
     // The streak is active (last workout was either today or yesterday). Start counting at 1.
@@ -160,19 +203,12 @@ export const getUserStreak = async (req: Request, res: Response) => {
       }
     }
 
-    // Format the date to YYYY-MM-DD to avoid frontend timezone confusion
-    const lastDate = new Date(rows[0].completed_date);
-    const year = lastDate.getFullYear();
-    const month = String(lastDate.getMonth() + 1).padStart(2, "0");
-    const day = String(lastDate.getDate()).padStart(2, "0");
-    const formattedLastDate = `${year}-${month}-${day}`;
-
     // Return the final calculated streak
     res.status(200).json({
       success: true,
       data: {
         streak,
-        lastWorkoutDate: formattedLastDate, // Ab yahan clean string jayegi
+        lastWorkoutDate: formattedLastDate, 
       },
     });
   } catch (error) {
