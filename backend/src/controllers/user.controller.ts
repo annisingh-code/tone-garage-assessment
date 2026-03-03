@@ -160,12 +160,19 @@ export const getUserStreak = async (req: Request, res: Response) => {
       }
     }
 
+    // Format the date to YYYY-MM-DD to avoid frontend timezone confusion
+    const lastDate = new Date(rows[0].completed_date);
+    const year = lastDate.getFullYear();
+    const month = String(lastDate.getMonth() + 1).padStart(2, "0");
+    const day = String(lastDate.getDate()).padStart(2, "0");
+    const formattedLastDate = `${year}-${month}-${day}`;
+
     // Return the final calculated streak
     res.status(200).json({
       success: true,
       data: {
         streak,
-        lastWorkoutDate: rows[0].completed_date,
+        lastWorkoutDate: formattedLastDate, // Ab yahan clean string jayegi
       },
     });
   } catch (error) {
