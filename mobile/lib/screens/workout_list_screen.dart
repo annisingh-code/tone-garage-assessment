@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/workout.dart';
+import '../screens/workout_history_screen.dart';
 
-// 🔥 Ab ye StatefulWidget ban gaya hai taaki hum UI refresh kar sakein
+
 class WorkoutListScreen extends StatefulWidget {
   const WorkoutListScreen({super.key});
 
@@ -13,7 +14,7 @@ class WorkoutListScreen extends StatefulWidget {
 class _WorkoutListScreenState extends State<WorkoutListScreen> {
   final ApiService _apiService = ApiService();
 
-  // Seed data ke hisaab se hum userId 1 use kar rahe hain
+  
   final String currentUserId = "1";
 
   late Future<List<Workout>> _workoutsFuture;
@@ -76,7 +77,19 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
         title: const Text("Tone Garage"),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
-          // 🔥 Ye doosra FutureBuilder sirf Streak dikhane ke liye hai
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WorkoutHistoryScreen(
+                    userId: "1",
+                  ), 
+                ),
+              );
+            },
+          ),
           FutureBuilder<int>(
             future: _streakFuture,
             builder: (context, snapshot) {

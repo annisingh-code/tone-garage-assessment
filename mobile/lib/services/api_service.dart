@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/workout.dart';
 
 class ApiService {
-  // 🔥 'static const' hata kar sirf 'final' kar diya taaki asani se use ho sake
+  // Ye baseUrl class ke andar hai, isliye sab functions isko use kar sakte hain
   final String baseUrl = 'http://localhost:3000/api';
 
   // 1. Fetch Workouts
@@ -56,6 +56,24 @@ class ApiService {
         return true;
       } else {
         return false;
+      }
+    } catch (e) {
+      throw Exception('Server connect error: $e');
+    }
+  }
+
+  // 4. Fetch Workout History
+  Future<List<dynamic>> getWorkoutHistory(String userId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/users/$userId/workout-history'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = json.decode(response.body);
+        return jsonResponse['data'];
+      } else {
+        throw Exception('Failed to load history');
       }
     } catch (e) {
       throw Exception('Server connect error: $e');
