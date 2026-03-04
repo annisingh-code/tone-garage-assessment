@@ -17,7 +17,8 @@ class WorkoutTrackerApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         useMaterial3: true,
       ),
-      home: const WorkoutListScreen(), // 🔥 Yahan par humne screen connect kar di
+      home:
+          const WorkoutListScreen(), // 🔥 Yahan par humne screen connect kar di
     );
   }
 }

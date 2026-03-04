@@ -2,34 +2,115 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../models/workout.dart';
 
-class WorkoutListScreen extends StatelessWidget {
+// 🔥 Ab ye StatefulWidget ban gaya hai taaki hum UI refresh kar sakein
+class WorkoutListScreen extends StatefulWidget {
   const WorkoutListScreen({super.key});
+
+  @override
+  State<WorkoutListScreen> createState() => _WorkoutListScreenState();
+}
+
+class _WorkoutListScreenState extends State<WorkoutListScreen> {
+  final ApiService _apiService = ApiService();
+
+  // Seed data ke hisaab se hum userId 1 use kar rahe hain
+  final String currentUserId = "1";
+
+  late Future<List<Workout>> _workoutsFuture;
+  late Future<int> _streakFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  // Initial API calls (React ke useEffect jaisa)
+  void _loadData() {
+    _workoutsFuture = _apiService.fetchWorkouts();
+    _streakFuture = _apiService.getUserStreak(currentUserId);
+  }
+
+  // Jab workout complete ho, toh streak refresh karne ke liye
+  void _refreshStreak() {
+    setState(() {
+      _streakFuture = _apiService.getUserStreak(currentUserId);
+    });
+  }
+
+  // Complete button pe click karne ka function
+  Future<void> _markWorkoutCompleted(int workoutId, String title) async {
+    try {
+      bool success = await _apiService.completeWorkout(
+        currentUserId,
+        workoutId,
+      );
+
+      if (success && mounted) {
+        // Success message dikhao
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Awesome! $title completed. 💪'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Streak update karo (Ye API dobara call karke AppBar refresh karega)
+        _refreshStreak();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to complete workout.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Tone Garage Workouts"),
+        title: const Text("Tone Garage"),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          // 🔥 Ye doosra FutureBuilder sirf Streak dikhane ke liye hai
+          FutureBuilder<int>(
+            future: _streakFuture,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: Center(
+                    child: Text(
+                      '🔥 Streak: ${snapshot.data}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                );
+              }
+              // Jab tak streak load ho rahi hai, empty space dikhao
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
       ),
-      // 🔥 FutureBuilder = useEffect + useState
       body: FutureBuilder<List<Workout>>(
-        future: ApiService().fetchWorkouts(),
+        future: _workoutsFuture,
         builder: (context, snapshot) {
-          // 1. Loading State (Spinner dikhao)
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          }
-          // 2. Error State (Agar backend band ho ya net na chal raha ho)
-          else if (snapshot.hasError) {
+          } else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
-          }
-          // 3. Empty State (Database khali ho toh)
-          else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text("No workouts found!"));
           }
 
-          // 4. Success State (Data ko map karke list banana)
           final workouts = snapshot.data!;
 
           return ListView.builder(
@@ -52,14 +133,10 @@ class WorkoutListScreen extends StatelessWidget {
                   trailing: IconButton(
                     icon: const Icon(
                       Icons.check_circle_outline,
-                      color: Colors.grey,
+                      color: Colors.green,
                     ),
-                    onPressed: () {
-                      // Yahan hum baad mein Complete Workout wali API call karenge
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('${workout.title} clicked!')),
-                      );
-                    },
+                    onPressed: () =>
+                        _markWorkoutCompleted(workout.id, workout.title),
                   ),
                 ),
               );
