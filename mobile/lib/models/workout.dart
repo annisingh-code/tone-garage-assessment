@@ -11,7 +11,7 @@ class Workout {
     required this.difficulty,
   });
 
-  // Ye factory function backend ke JSON ko Dart object mein convert karta hai
+  // Factory constructor to parse JSON data from the backend into a Workout object
   factory Workout.fromJson(Map<String, dynamic> json) {
     return Workout(
       id: json['id'],

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { pool } from "../config/db";
-import { isValidId } from "../utils/validation"; // 🔥 Utility import kar li
+import { isValidId } from "../utils/validation";
 
 /**
  * Retrieves the complete workout history for a specific user.
@@ -10,8 +10,8 @@ import { isValidId } from "../utils/validation"; // 🔥 Utility import kar li
 export const getUserWorkoutHistory = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    
-    // ✅ Utility function use kar li
+
+    // Validate the user ID parameter
     if (!isValidId(userId)) {
       return res.status(400).json({
         success: false,
@@ -58,15 +58,15 @@ export const getUserWorkoutHistory = async (req: Request, res: Response) => {
 export const completeWorkout = async (req: Request, res: Response) => {
   try {
     const { userId, workoutId } = req.params;
-    
-    // ✅ Yahan bhi Utility function use kar li dono IDs ke liye
+
+    // Validate both the user ID and workout ID
     if (!isValidId(userId) || !isValidId(workoutId)) {
       return res.status(400).json({
         success: false,
         message: "Invalid userId or workoutId",
       });
     }
-    
+
     const { completedAt } = req.body;
 
     // Validate if the timestamp is provided in the request body
@@ -117,7 +117,7 @@ export const getUserStreak = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
-    // ✅ Yahan bhi ekdum clean utility validation
+    // Validate the user ID parameter
     if (!isValidId(userId)) {
       return res.status(400).json({
         success: false,
@@ -147,7 +147,7 @@ export const getUserStreak = async (req: Request, res: Response) => {
       });
     }
 
-    // Format the date UP to avoid frontend timezone confusion
+    // Format the date to avoid frontend timezone confusion
     const lastDate = new Date(rows[0].completed_date);
     const year = lastDate.getFullYear();
     const month = String(lastDate.getMonth() + 1).padStart(2, "0");
@@ -174,7 +174,7 @@ export const getUserStreak = async (req: Request, res: Response) => {
         success: true,
         data: {
           streak: 0,
-          lastWorkoutDate: formattedLastDate, 
+          lastWorkoutDate: formattedLastDate,
         },
       });
     }
@@ -190,7 +190,7 @@ export const getUserStreak = async (req: Request, res: Response) => {
       // Calculate the difference in days between the current date in the loop and the previously checked date.
       const diff = Math.floor(
         (previousDate.getTime() - currentDate.getTime()) /
-          (1000 * 60 * 60 * 24),
+        (1000 * 60 * 60 * 24),
       );
 
       // If the difference is exactly 1 day, it's a consecutive workout.
@@ -208,7 +208,7 @@ export const getUserStreak = async (req: Request, res: Response) => {
       success: true,
       data: {
         streak,
-        lastWorkoutDate: formattedLastDate, 
+        lastWorkoutDate: formattedLastDate,
       },
     });
   } catch (error) {

@@ -2,11 +2,12 @@ import { Request, Response } from "express";
 import { pool } from "../config/db";
 
 /**
- * Fetch all available workouts from the database
+ * Retrieves a list of all available workouts.
+ * Fetches all records from the workouts table to be displayed in the workout catalog.
  */
 export const getAllWorkouts = async (req: Request, res: Response) => {
   try {
-    // Retrieve all workout records
+    // Fetch all workout records from the database
     const [rows] = await pool.query("SELECT * FROM workouts");
     
     res.status(200).json({

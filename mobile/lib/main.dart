@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/workout_list_screen.dart'; // 🔥 Ye import zaroori hai
+import 'screens/workout_list_screen.dart'; // Import the workout list screen
 
 void main() {
   runApp(const WorkoutTrackerApp());
@@ -18,8 +18,7 @@ class WorkoutTrackerApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home:
-          const WorkoutListScreen(), // 🔥 Yahan par humne screen connect kar di
+          const WorkoutListScreen(), // Set WorkoutListScreen as the home screen
     );
   }
-  
 }

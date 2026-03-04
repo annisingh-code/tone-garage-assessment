@@ -3,7 +3,6 @@ import '../services/api_service.dart';
 import '../models/workout.dart';
 import '../screens/workout_history_screen.dart';
 
-
 class WorkoutListScreen extends StatefulWidget {
   const WorkoutListScreen({super.key});
 
@@ -14,7 +13,7 @@ class WorkoutListScreen extends StatefulWidget {
 class _WorkoutListScreenState extends State<WorkoutListScreen> {
   final ApiService _apiService = ApiService();
 
-  
+  // Using a hardcoded user ID for demonstration purposes
   final String currentUserId = "1";
 
   late Future<List<Workout>> _workoutsFuture;
@@ -26,20 +25,20 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
     _loadData();
   }
 
-  // Initial API calls (React ke useEffect jaisa)
+  // Initialize API calls to fetch data when the screen loads
   void _loadData() {
     _workoutsFuture = _apiService.fetchWorkouts();
     _streakFuture = _apiService.getUserStreak(currentUserId);
   }
 
-  // Jab workout complete ho, toh streak refresh karne ke liye
+  // Refresh the user's streak by triggering a state update
   void _refreshStreak() {
     setState(() {
       _streakFuture = _apiService.getUserStreak(currentUserId);
     });
   }
 
-  // Complete button pe click karne ka function
+  // Handler for marking a workout as completed
   Future<void> _markWorkoutCompleted(int workoutId, String title) async {
     try {
       bool success = await _apiService.completeWorkout(
@@ -48,18 +47,19 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
       );
 
       if (success && mounted) {
-        // Success message dikhao
+        // Display success notification
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Awesome! $title completed. 💪'),
             backgroundColor: Colors.green,
           ),
         );
-        // Streak update karo (Ye API dobara call karke AppBar refresh karega)
+        // Refresh the AppBar to reflect the newly updated streak
         _refreshStreak();
       }
     } catch (e) {
       if (mounted) {
+        // Display error notification
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Failed to complete workout.'),
@@ -77,19 +77,19 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
         title: const Text("Tone Garage"),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
+          // Navigation button to the Workout History screen
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const WorkoutHistoryScreen(
-                    userId: "1",
-                  ), 
+                  builder: (context) => const WorkoutHistoryScreen(userId: "1"),
                 ),
               );
             },
           ),
+          // Dynamic widget to load and display the user's active streak
           FutureBuilder<int>(
             future: _streakFuture,
             builder: (context, snapshot) {
@@ -107,7 +107,7 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
                   ),
                 );
               }
-              // Jab tak streak load ho rahi hai, empty space dikhao
+              // Return an empty placeholder while the streak data is loading
               return const SizedBox.shrink();
             },
           ),
@@ -116,16 +116,22 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
       body: FutureBuilder<List<Workout>>(
         future: _workoutsFuture,
         builder: (context, snapshot) {
+          // Handle Loading State
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
+          }
+          // Handle Error State
+          else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          }
+          // Handle Empty State
+          else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text("No workouts found!"));
           }
 
           final workouts = snapshot.data!;
 
+          // Render the list of available workouts
           return ListView.builder(
             itemCount: workouts.length,
             itemBuilder: (context, index) {
