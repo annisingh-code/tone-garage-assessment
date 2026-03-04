@@ -1,17 +1,29 @@
-# mobile
+# Tone Garage - Flutter App 📱
 
-A new Flutter project.
+The mobile application for the Workout Tracker, built with Flutter. It provides a clean, responsive UI for users to view workouts, mark them as complete, and track their active streaks.
 
-## Getting Started
+## 🛠️ Tech Stack
+* Flutter & Dart
+* Material Design 3
+* `http` package for API communication
 
-This project is a starting point for a Flutter application.
+## 🚀 Local Setup (Physical Android Device)
 
-A few resources to get you started if this is your first Flutter project:
+1. **Install Packages**
+   ```bash
+   flutter pub get
+   ```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+2. **Configure API Endpoint**
+   * Open `lib/services/api_service.dart`.
+   * Update the `baseUrl` variable to match your machine's local IP address (e.g., `http://192.168.x.x:3000/api`) since the physical device cannot route to `localhost`.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+3. **Run the App**
+   Connect your Android device via USB (with USB Debugging enabled) and run:
+   ```bash
+   flutter run
+   ```
+
+## 🧠 Architecture Notes
+* **State Management:** Leveraged Flutter's native `StatefulWidget` and `FutureBuilder` to handle API loading and error states cleanly without introducing heavy third-party state management libraries.
+* **UI/UX:** Implemented snackbar notifications for success states and dynamic UI updates for the streak counter.
