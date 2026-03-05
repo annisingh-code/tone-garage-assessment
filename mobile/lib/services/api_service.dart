@@ -5,7 +5,7 @@ import '../models/workout.dart';
 /// Service class responsible for handling all HTTP requests to the backend API.
 class ApiService {
   // Base URL for the API. Update this to the production URL once the backend is deployed.
-  final String baseUrl = 'http://192.168.31.12:3000/api';
+  final String baseUrl = 'https://tone-garage-assessment.onrender.com/api';
 
   /// Fetches the list of all available workouts from the backend catalog.
   Future<List<Workout>> fetchWorkouts() async {
