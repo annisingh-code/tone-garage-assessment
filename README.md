@@ -2,6 +2,11 @@
 
 A full-stack workout tracking application built to help users manage their fitness routines, track their completion history, and maintain a consecutive daily workout streak.
 
+## 🌐 Live Deployment (Bonus)
+* **Live API Base URL:** `https://tone-garage-assessment.onrender.com/api`
+* **Cloud Database:** Hosted on Railway (MySQL)
+* The Flutter mobile app is pre-configured to point to this live production URL, ensuring immediate testing on any physical Android device without local server setup.
+
 ## 🚀 Features
 
 * **Workout Catalog:** View a list of available workouts with details like duration and difficulty.
@@ -17,18 +22,21 @@ A full-stack workout tracking application built to help users manage their fitne
 * TypeScript
 * MySQL (mysql2/promise)
 * dotenv & cors
+* **Deployment:** Render (API) & Railway (Database)
 
-**Frontend (Mobile/Web):**
+**Frontend (Mobile):**
 * Flutter (Dart)
 * `http` package for API integration
 * FutureBuilder for clean async state management
 
-## 📦 Local Setup Instructions
+## 📦 Local Setup Instructions (Optional)
+
+If you wish to run the backend and database locally instead of using the live deployment, follow these steps:
 
 ### Prerequisites
 * Node.js installed
 * MySQL Server running locally
-* Flutter SDK installed (Targeting Chrome/Web or Android Emulator)
+* Flutter SDK installed (Targeting Android Device/Emulator)
 
 ### 1. Database Setup
 1. Open your MySQL client (e.g., MySQL Workbench).
@@ -36,7 +44,7 @@ A full-stack workout tracking application built to help users manage their fitne
    ```sql
    CREATE DATABASE workout_tracker;
    ```
-3. Update the database credentials in the backend `.env` file.
+3. Update the database credentials in the backend `.env` file to match your local MySQL setup.
 
 ### 2. Backend Setup
 Navigate to the backend directory:
@@ -55,7 +63,7 @@ Start the development server:
 ```bash
 npm run dev
 ```
-*The server will start running on `http://localhost:3000`.*
+*The local server will run on `http://localhost:3000`.*
 
 ### 3. Flutter (Mobile) Setup
 Open a new terminal and navigate to the mobile directory:
@@ -66,11 +74,12 @@ Fetch the required Flutter packages:
 ```bash
 flutter pub get
 ```
-Run the app on Chrome (Recommended for quick testing):
+*(Note: If running the local backend, update the `baseUrl` in `mobile/lib/services/api_service.dart` from the Render URL to your machine's local IP address or `10.0.2.2` for an emulator).*
+
+Run the app on a connected Android device:
 ```bash
-flutter run -d chrome
+flutter run
 ```
-*(Note: To run on an Android emulator, ensure you update the `baseUrl` in `api_service.dart` from `localhost` to `10.0.2.2`).*
 
 ## 💡 Architecture Decisions
 * **Utility-First Validation:** Implemented reusable ID validation functions in the backend to ensure DRY principles and prevent SQL injection/type errors.
